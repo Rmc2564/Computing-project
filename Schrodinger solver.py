@@ -20,7 +20,7 @@ def schrodinger(y,r, E, l, mu):
 
 #Natural units in MeV
 
-rs = np.linspace(3000,0.0000000000001,100000)
+rs = np.linspace(3500,0.0000000000001,100000)
 E = -1.304569*10**-5
 l = 0
 mu = 0.51099895000
@@ -115,13 +115,16 @@ def getEnergy(E0, E1, tolerance, l):
 
     
 
-E1 = getEnergy(-3.5,-4,0.0001, 0)
-Sol_test = odeint(schrodinger, y0, rs, (E1, l, mu))[:,0]
-plt.plot(rs, Sol_test)
-norm = simpson(Sol_test*Sol_test, x = rs)
+E1 = getEnergy(-3.5,-3.8,0.0001, 0)
+Sol_test = odeint(schrodinger, y0, rs, (E1*10**-6, l, mu))[:,0]
+
+
+
+norm = simpson(Sol_test*Sol_test, x = rs[::-1])
 
 dist2 = (Sol_test*Sol_test)/norm
-plt.plot(rs/a0, dist2)
+plt.plot(rs/a0, dist2, label = 'numeric')
+
 plt.title('n=2, l = 0')
 
 
