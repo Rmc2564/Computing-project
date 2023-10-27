@@ -23,7 +23,7 @@ def schrodinger(y,r, E, l, mu):
 
 #Natural units in MeV
 
-rs = np.linspace(0.0000000000001,3500, 1000000)
+rs = np.linspace(0.0000000000001,3800, 1000000)
 E = -1.304569*10**-5
 l = 0
 mu = 0.51099895000
@@ -54,12 +54,12 @@ def getEnergy(E0, E1, tolerance, l):
     
     t1 = odeint(schrodinger, y0, rs, (E1, l, mu))[:,0]
     t0 = odeint(schrodinger, y0, rs, (E0, l, mu))[:,0]
-    plt.plot(rs, t0, label = 'T0')
-    plt.plot(rs, t1, label = 'T1')
-    plt.legend()
-    plt.show()
-    norm1 = np.abs(simpson(t1, x = rs))
-    norm0 = np.abs(simpson(t0, x = rs))
+    # plt.plot(rs, t0, label = 'T0')
+    # plt.plot(rs, t1, label = 'T1')
+    # plt.legend()
+    # plt.show()
+    norm1 = np.abs(simpson(t1*t1, x = rs))
+    norm0 = np.abs(simpson(t0*t0, x = rs))
     t0 = t0/np.sqrt(norm0)
     t1 = t1/np.sqrt(norm1)
     test_0 = t0[-1]
@@ -100,8 +100,9 @@ def getEnergy(E0, E1, tolerance, l):
         tmid = tmid/np.sqrt(normmid)
         
         testmid = tmid[-1]
-        plt.plot(rs/a0, tmid)
-        plt.title('Get smeared, idiot')
+        # plt.plot(rs/a0, tmid)
+        # plt.title('Get smeared, idiot')
+        
         if testmid < 0:
             Elow = Emid
         
@@ -110,7 +111,7 @@ def getEnergy(E0, E1, tolerance, l):
         Emid = (Ehigh + Elow)*0.5
     #overflow_check = np.max(tmid)
     #print(overflow_check)
-    plt.show()
+    #plt.show()
     #if overflow_check > 1e7:
      #   return 'likely overflow'
     #else:
@@ -119,6 +120,8 @@ def getEnergy(E0, E1, tolerance, l):
     
 def milestone(ns):
     Es = []
+    ls = []
+    n_s = []
     for n in ns:
         E_anal = (-13.6/n**2)
         E0 = E_anal + 0.4
@@ -129,11 +132,43 @@ def milestone(ns):
             Enew = getEnergy(E0, E1, 0.01, l)
             print('Enew = ' + str(Enew))
             Es.append(Enew)
-            l = l+1
             error = (E_anal- Enew)/E_anal
             print('Energy error: ' + str(error) + '%')
-    return Es
+            u = odeint(schrodinger, y0, rs, (E, l, mu))[:,0]
+            unorm = np.abs(simpson(u,x = rs))
+            u = u/np.sqrt(unorm)
+            ls.append(l)
+            n_s.append(n)
+            l = l+1
+            
+    return Es, n_s, ls
             
 ns = [1,2]
 
 E_list = milestone(ns)           
+Energies = E_list[0]
+ns = E_list[1]
+ls = E_list[2]
+
+'With a method to obtain energy eigenvalues, can now plot the probability distributions'
+
+for i in range(0,3):
+    E = Energies[i]*10**-6
+    l = ls[i]
+    n = ns[i]
+    U = odeint(schrodinger, y0, rs, (E,l,mu))[:,0]
+    norm = np.abs(simpson(U*U,x = rs))
+    U = U/np.sqrt(norm)
+    Prob = U*U
+    plt.plot(rs/a0, Prob, label = '(n,l) = ' + str((n,l)))
+
+
+
+plt.xlabel(r'$\frac{r}{a0}$ MeV')
+plt.ylabel(r'$|u|^{2}$')
+plt.legend()
+plt.show()
+
+
+
+
