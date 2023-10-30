@@ -129,7 +129,7 @@ def milestone(ns):
         print(E0, E1)
         l = 0
         while l < n:
-            Enew = getEnergy(E0, E1, 0.01, l)
+            Enew = getEnergy(E0, E1, 0.0001, l)
             print('Enew = ' + str(Enew))
             Es.append(Enew)
             error = (E_anal- Enew)/E_anal
@@ -152,6 +152,8 @@ ls = E_list[2]
 
 'With a method to obtain energy eigenvalues, can now plot the probability distributions'
 
+plt.figure(figsize = (11,7))
+
 for i in range(0,3):
     E = Energies[i]*10**-6
     l = ls[i]
@@ -164,7 +166,7 @@ for i in range(0,3):
 
 
 
-plt.xlabel(r'$\frac{r}{a0}$ MeV')
+plt.xlabel(r'$\frac{r}{a0}$')
 plt.ylabel(r'$|u|^{2}$')
 plt.legend()
 plt.show()
