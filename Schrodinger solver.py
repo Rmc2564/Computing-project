@@ -149,7 +149,7 @@ E_list = milestone(ns)
 Energies = E_list[0]
 ns = E_list[1]
 ls = E_list[2]
-
+colours = ['#2f8dff', 'blue', '#682860']
 'With a method to obtain energy eigenvalues, can now plot the probability distributions'
 
 plt.figure(figsize = (11,7))
@@ -162,15 +162,15 @@ for i in range(0,3):
     norm = np.abs(simpson(U*U,x = rs))
     U = U/np.sqrt(norm)
     Prob = U*U
-    plt.plot(rs/a0, Prob, label = '(n,l) = ' + str((n,l)))
+    plt.plot(rs/a0, Prob, label = '(n,l) = ' + str((n,l)), color = colours[i])
 
 
 
-plt.xlabel(r'$\frac{r}{a0}$')
-plt.ylabel(r'$|u|^{2}$')
-plt.legend()
+plt.xlabel(r'$\frac{r}{a_{0}}$', fontsize = '25')
+plt.xticks(fontsize = '20')
+
+plt.ylabel('Radial Probability density', fontsize = '22')
+plt.yticks(fontsize = '17')
+
+plt.legend(fontsize = '17')
 plt.show()
-
-
-
-
