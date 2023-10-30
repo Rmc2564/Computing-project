@@ -165,10 +165,11 @@ for i in range(0,3):
     plt.plot(rs/a0, Prob, label = '(n,l) = ' + str((n,l)), color = colours[i])
 
 
-
+plt.xlim(0,max(rs/a0)+0.5)
 plt.xlabel(r'$\frac{r}{a_{0}}$', fontsize = '25')
 plt.xticks(fontsize = '20')
 
+plt.ylim(0, 0.00215)
 plt.ylabel('Radial Probability density', fontsize = '22')
 plt.yticks(fontsize = '17')
 
