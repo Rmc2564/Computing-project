@@ -18,7 +18,7 @@ phi, theta = np.meshgrid(phi, theta)
 
 
 
-m, l = 0, 2
+m, l = 1, 1
 
 # Calculate the spherical harmonic Y(l,m) and normalize to [0,1]
 fcolors = np.abs(sph_harm(m, l, theta, phi))
@@ -40,9 +40,10 @@ fcolors = (fcolors - fmin)/(fmax - fmin)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-ax.plot_surface(X, Y, Z, rstride=4, cstride=4, facecolors=cm.viridis(fcolors))
+ax.plot_surface(X, Y, Z, rstride=5, cstride=5, facecolors=cm.viridis(fcolors))
 
 # rotate the axes and update
+
 for angle in range(0, 360):
     ax.view_init(20, angle)
     plt.draw()
