@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
 
-phi = np.linspace(0, np.pi, 250)
-theta = np.linspace(0, 2*np.pi, 250)
+phi = np.linspace(0, np.pi, 150)
+theta = np.linspace(0, 2*np.pi, 150)
 phi, theta = np.meshgrid(phi, theta)
 
 
 
-m, l = 0, 1
+m, l = 0, 2
 
 # Calculate the spherical harmonic Y(l,m) and normalize to [0,1]
 fcolors = np.abs(sph_harm(m, l, theta, phi))
@@ -27,13 +27,23 @@ fcolors = np.abs(sph_harm(m, l, theta, phi))
 fmax, fmin = fcolors.max(), fcolors.min()
 
 
-x = fcolors*np.sin(phi) * np.cos(theta)
-y = fcolors*np.sin(phi) * np.sin(theta)
-z = fcolors*np.cos(phi)
+X = fcolors*np.sin(phi) * np.cos(theta)
+Y = fcolors*np.sin(phi) * np.sin(theta)
+Z = fcolors*np.cos(phi)
 
 fcolors = (fcolors - fmin)/(fmax - fmin)
 
+# fig = plt.figure()
+# ax = plt.axes(projection = '3d')
+# ax.view_init(20,30)
+# ax.plot_surface(x, y, z,  rstride=1, cstride=1, facecolors=cm.viridis(fcolors))
 fig = plt.figure()
-ax = plt.axes(projection = '3d')
-ax.view_init(20,30)
-ax.plot_surface(x, y, z,  rstride=1, cstride=1, facecolors=cm.viridis(fcolors))
+ax = fig.add_subplot(111, projection='3d')
+
+ax.plot_surface(X, Y, Z, rstride=4, cstride=4, facecolors=cm.viridis(fcolors))
+
+# rotate the axes and update
+for angle in range(0, 360):
+    ax.view_init(20, angle)
+    plt.draw()
+    plt.pause(.01)
