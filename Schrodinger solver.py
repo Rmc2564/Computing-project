@@ -32,18 +32,18 @@ a0 = 1/(mu*alpha)
 
 
 
-#solution = odeint(schrodinger, y0,rs, (E/4, l, mu)) #Gives un-normalised wavefunction
-#u = solution[:,0]
-#plt.plot(rs/a0,u)
-#plt.show()
-#norm = simpson(u*u, x = rs)
-#unorm = u/np.sqrt(abs(norm))
+solution = odeint(schrodinger, y0,rs, (E, l, mu)) #Gives un-normalised wavefunction
+u = solution[:,0]
+# plt.plot(rs/a0,u)
+# plt.show()
+norm = simpson(u*u, x = rs)
+unorm = u/np.sqrt(abs(norm))
 
-#pdist = unorm*unorm
-#print(unorm[-1])
-#plt.plot(rs/a0,pdist)
-#plt.title('ground state')
-#plt.show()
+pdist = unorm*unorm
+print(unorm[-1])
+plt.plot(rs/a0,pdist)
+plt.title('ground state')
+plt.show()
 'Now have a method for solving the schrodinger equation for a given energy,'
 'just need to implement a modified bisection method'#
 
