@@ -8,7 +8,7 @@ import numpy as np
 from scipy.integrate import odeint, simpson
 import matplotlib.pyplot as plt
 
-
+rs = np.linspace(0.000000001, 4000, 10000)
 
 alpha = 1/137
 def coulomb(r):
@@ -34,10 +34,10 @@ class radial:
         return self.solution
     
 
-hydrogen_0 = radial([0,1], np.linspace(0.0000000000001, 3800, 10000),-1.304569*10**-5, coulomb, 0, mu = 0.51099895000)
+hydrogen_0 = radial([0,1], rs,-13.6*10**-6, coulomb, 0, 0.51099895000)
 
 H0_solution = hydrogen_0.schrodinger_solve()[:,0]
-H0_norm = np.abs(simpson(H0_solution*H0_solution, x = np.linspace(0.0000000000001, 3800, 10000)))
+H0_norm = np.abs(simpson((H0_solution), x = rs))
 H0_solution = H0_solution/np.sqrt(H0_norm)
 
-plt.plot(np.linspace(0.0000000000001, 3800, 10000), H0_solution**2)
+plt.plot(rs, H0_solution**2)
