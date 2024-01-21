@@ -150,7 +150,7 @@ def milestone(ns):
 # ns = E_list[1]
 # ls = E_list[2]
 # colours = ['#2f8dff', 'blue', '#682860']
-# 'With a method to obtain energy eigenvalues, can now plot the probability distributions'
+'With a method to obtain energy eigenvalues, can now plot the probability distributions'
 
 # plt.figure(figsize = (11,7))
 
@@ -216,7 +216,7 @@ def get_beta(B0, B1, alpha, tolerance, l):
         Blow = B1
     Bmid = (Bhigh+Blow)*0.5
     runs = 0
-    while runs < 51:
+    while abs(test_0-test_1) > tolerance:
         def cornell_low(r):
             return (-4*alpha)/(3*r) + Blow*r
         
@@ -237,7 +237,7 @@ def get_beta(B0, B1, alpha, tolerance, l):
         thigh = thigh/np.sqrt(normhigh)
         test_1 = thigh[-1]
         
-        print(test_1)
+        #print(test_1)
         tmid = odeint(schrodinger, y0, rs,(cornell_mid, E0_charm, l, mu))[:,0]
         normmid = np.abs(simpson(tmid*tmid, x = rs[::-1]))
     
@@ -253,7 +253,7 @@ def get_beta(B0, B1, alpha, tolerance, l):
         Bmid = (Bhigh + Blow)*0.5
         #print(Bmid)
         runs = runs+1
-       # print(abs(test_0-test_1))
+    print("iterated " + str(runs) +" " +'times')
     plt.plot(rs,tmid)
     plt.xlabel('r (GeV)')
     plt.ylabel('u(r)')
@@ -265,7 +265,7 @@ B_lit = 0.195
 B0 = 0.195
 B1 = 0.205
 
-beta_charm = get_beta(B0,B1,alpha_s_charm, 0.01, 0)
+beta_charm = get_beta(B0,B1,alpha_s_charm, 0.001, 0)
 print(beta_charm)
 
 def cornell_charm(r):
