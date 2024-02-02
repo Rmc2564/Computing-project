@@ -23,7 +23,7 @@ def schrodinger(y,r, potential, E, l, mu):
 
 #Natural units in MeV
 
-rs = np.linspace(0.0000000000001,20, 150)
+rs = np.linspace(0.0000000000001,14, 150)
 E = -1.304569*10**-5
 l = 0
 mu = 0.51099895000
@@ -49,15 +49,15 @@ a0 = 1/(mu*alpha)
 
 
 def getEnergy(E0, E1, potential, tolerance, l):
-    E0 = E0*10**-6
-    E1 = E1*10**-6
+    # E0 = E0*10**-6
+    # E1 = E1*10**-6
     
     t1 = odeint(schrodinger, y0, rs, (potential, E1, l, mu))[:,0]
     t0 = odeint(schrodinger, y0, rs, (potential, E0, l, mu))[:,0]
-    # plt.plot(rs, t0, label = 'T0')
-    # plt.plot(rs, t1, label = 'T1')
-    # plt.legend()
-    # plt.show()
+    plt.plot(rs, t0, label = 'T0')
+    plt.plot(rs, t1, label = 'T1')
+    plt.legend()
+    plt.show()
     norm1 = np.abs(simpson(t1*t1, x = rs))
     norm0 = np.abs(simpson(t0*t0, x = rs))
     t0 = t0/np.sqrt(norm0)
@@ -65,8 +65,8 @@ def getEnergy(E0, E1, potential, tolerance, l):
     test_0 = t0[-1]
     test_1 = t1[-1]
     error = 'No sign change on interval'
-    #print('test_0: ' + str(test_0))
-    #print('test_1 : ' + str(test_1))
+    print('test_0: ' + str(test_0))
+    print('test_1 : ' + str(test_1))
     if test_0*test_1 >0:
         return error
     
@@ -78,7 +78,7 @@ def getEnergy(E0, E1, potential, tolerance, l):
         Elow = E1
     Emid = (Ehigh+Elow)*0.5
     #overflow_check = np.max(t1)
-    print(abs(test_0 - test_1))
+    #print(abs(test_0 - test_1))
     while abs(test_0 - test_1) > tolerance:
         
         
@@ -89,14 +89,13 @@ def getEnergy(E0, E1, potential, tolerance, l):
 
         thigh = odeint(schrodinger, y0, rs, (potential, Ehigh, l, mu))[:,0]
         normhigh = np.abs(simpson(thigh*thigh, x = rs[::-1]))
-        print(Emid*10**6)
+        print(Emid)
         thigh = thigh/np.sqrt(normhigh)
         test_1 = thigh[-1]
         
        
         tmid = odeint(schrodinger, y0, rs,(potential, Emid, l, mu))[:,0]
         normmid = np.abs(simpson(tmid*tmid, x = rs[::-1]))
-        print()
         tmid = tmid/np.sqrt(normmid)
         
         testmid = tmid[-1]
@@ -115,35 +114,32 @@ def getEnergy(E0, E1, potential, tolerance, l):
     #if overflow_check > 1e7:
      #   return 'likely overflow'
     #else:
-    return Emid*10**6
+    return Emid
 
     
-def milestone(ns):
+def milestone(ns, potential, energy_start, ls):
     Es = []
-    ls = []
-    n_s = []
+    i = 0
     for n in ns:
-        E_anal = (-13.6/n**2)
-        E0 = E_anal + 0.4
-        E1 = E_anal - 0.4
+        E_init = energy_start[i]
+        E0 = E_init + 0.4
+        E1 = E_init - 0.4
         print(E0, E1)
-        l = 0
-        while l < n:
-            Enew = getEnergy(E0, E1, coulomb, 0.0001, l)
-            print('Enew = ' + str(Enew))
-            Es.append(Enew)
-            error = (E_anal- Enew)/E_anal
-            print('Energy error: ' + str(error) + '%')
-            u = odeint(schrodinger, y0, rs, (coulomb, E, l, mu))[:,0]
-            unorm = np.abs(simpson(u,x = rs))
-            u = u/np.sqrt(unorm)
-            ls.append(l)
-            n_s.append(n)
-            l = l+1
+        l = ls[i]
+        i = i+1
+        
+        Enew = getEnergy(E0, E1, potential, 0.0001, l)
+        print('Enew = ' + str(Enew))
+        Es.append(Enew)
+        #error = (E_anal- Enew)/E_anal
+        #print('Energy error: ' + str(error) + '%')
+        # u = odeint(schrodinger, y0, rs, (coulomb, E, l, mu))[:,0]
+        # unorm = np.abs(simpson(u,x = rs))
+        # u = u/np.sqrt(unorm)
             
-    return Es, n_s, ls
+    return Es
             
-# ns = [1,2]
+ns = [1,2]
 
 # E_list = milestone(ns)           
 # Energies = E_list[0]
@@ -178,11 +174,6 @@ def milestone(ns):
 
 alpha_s_charm = 0.40
 alpha_s_bottom = 0.28
-
-'Can now define the strong force potential'
-
-def cornell(r, alpha, beta):
-    return (-4*alpha)/(3*r) + beta*r 
 
 'First will use Charmonium measurements to iterate to a value of beta'
 
@@ -258,6 +249,7 @@ def get_beta(B0, B1, alpha, tolerance, l):
     plt.xlabel('r (GeV)')
     plt.ylabel('u(r)')
     plt.title('Radial wavefunction for returned Beta')
+    plt.show()
     return Bmid
 
 B_lit = 0.195
@@ -265,11 +257,41 @@ B_lit = 0.195
 B0 = 0.195
 B1 = 0.205
 
-beta_charm = get_beta(B0,B1,alpha_s_charm, 0.001, 0)
+beta_charm = round(get_beta(B0,B1,alpha_s_charm, 0.001, 0), 3)
 print(beta_charm)
 
 def cornell_charm(r):
     return (-4*alpha_s_charm)/(3*r) + beta_charm*r 
 
+#charm_ground = odeint(schrodinger, y0, rs, (cornell_charm, E0_charm, 0, mu))
+#charm_ground_U = charm_ground[:,0]
+#norm = np.sqrt(simpson(charm_ground_U, x = rs))
 
+#charm_ground_deriv = charm_ground[:,1]/np.sqrt(norm)
+#R_zero = charm_ground_deriv[0]
 
+#spin_coupling = ((8*alpha_s_charm)/(9*1.34**2))*np.abs(R_zero)**2
+
+'try similar n^2 dependance for charmonium'#
+
+E_list = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.3], [0,1,1])     
+Energies = E_list
+ls = [0,1,1]
+ns = [1,1,2]
+
+plt.figure(figsize = (11,7), frameon=False)
+for i in range(0,3):
+    n = ns[i]
+    l = ls[i]
+    u = odeint(schrodinger, y0, rs, (cornell_charm, Energies[i], l, mu))[:,0]
+    unorm = np.abs(simpson(u*u,x = rs[::-1]))
+    u = u/np.sqrt(unorm)
+    prob = u*u
+    plt.plot(rs, prob,label = '(n,l) = ' + str((n,l)))    
+plt.legend()
+
+plt.xlim(0,14)
+plt.xlabel('r (GeV)')
+
+plt.ylabel('radial probability density')
+plt.ylim(0,0.45)
