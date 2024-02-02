@@ -23,7 +23,7 @@ def schrodinger(y,r, potential, E, l, mu):
 
 #Natural units in MeV
 
-rs = np.linspace(0.0000000000001,14, 150)
+rs = np.linspace(0.0000000000001,14, 1500)
 E = -1.304569*10**-5
 l = 0
 mu = 0.51099895000
@@ -273,7 +273,7 @@ def cornell_charm(r):
 #spin_coupling = ((8*alpha_s_charm)/(9*1.34**2))*np.abs(R_zero)**2
 
 'try similar n^2 dependance for charmonium'#
-
+accessible_cols = ['#FFB000','#DC267F','#648FFF']
 E_list = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.3], [0,1,1])     
 Energies = E_list
 ls = [0,1,1]
@@ -287,11 +287,13 @@ for i in range(0,3):
     unorm = np.abs(simpson(u*u,x = rs[::-1]))
     u = u/np.sqrt(unorm)
     prob = u*u
-    plt.plot(rs, prob,label = '(n,l) = ' + str((n,l)))    
-plt.legend()
+    plt.plot(rs, prob,label = '(n,l) = ' + str((n,l)), color = accessible_cols[i])    
+plt.legend(fontsize = '17')
 
 plt.xlim(0,14)
-plt.xlabel('r (GeV)')
+plt.xlabel('r (GeV)', fontsize = '22')
+plt.xticks(fontsize = '20')
 
-plt.ylabel('radial probability density')
+plt.ylabel('radial probability density', fontsize = '22')
 plt.ylim(0,0.45)
+plt.yticks(fontsize = '17')
