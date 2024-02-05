@@ -54,10 +54,10 @@ def getEnergy(E0, E1, potential, tolerance, l):
     
     t1 = odeint(schrodinger, y0, rs, (potential, E1, l, mu))[:,0]
     t0 = odeint(schrodinger, y0, rs, (potential, E0, l, mu))[:,0]
-    plt.plot(rs, t0, label = 'T0')
-    plt.plot(rs, t1, label = 'T1')
-    plt.legend()
-    plt.show()
+    #plt.plot(rs, t0, label = 'T0')
+    #plt.plot(rs, t1, label = 'T1')
+    #plt.legend()
+    #plt.show()
     norm1 = np.abs(simpson(t1*t1, x = rs))
     norm0 = np.abs(simpson(t0*t0, x = rs))
     t0 = t0/np.sqrt(norm0)
@@ -122,8 +122,8 @@ def milestone(ns, potential, energy_start, ls):
     i = 0
     for n in ns:
         E_init = energy_start[i]
-        E0 = E_init + 0.4
-        E1 = E_init - 0.4
+        E0 = E_init + 0.2
+        E1 = E_init - 0.2
         print(E0, E1)
         l = ls[i]
         i = i+1
@@ -257,11 +257,14 @@ B_lit = 0.195
 B0 = 0.195
 B1 = 0.205
 
-beta_charm = round(get_beta(B0,B1,alpha_s_charm, 0.001, 0), 3)
-print(beta_charm)
+beta = get_beta(B0,B1,alpha_s_charm, 0.001, 0)
+print(beta)
 
 def cornell_charm(r):
-    return (-4*alpha_s_charm)/(3*r) + beta_charm*r 
+    return (-4*alpha_s_charm)/(3*r) + beta*r 
+
+def cornell_bottom(r):
+    return (-4*alpha_s_bottom)/(3*r) + beta*r
 
 #charm_ground = odeint(schrodinger, y0, rs, (cornell_charm, E0_charm, 0, mu))
 #charm_ground_U = charm_ground[:,0]
@@ -274,16 +277,16 @@ def cornell_charm(r):
 
 'try similar n^2 dependance for charmonium'#
 accessible_cols = ['#FFB000','#DC267F','#648FFF']
-E_list = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.3], [0,1,1])     
-Energies = E_list
-ls = [0,1,1]
+Energies = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.4], [0,1,0])  
+Energies_bottom = milestone([1,1,2], cornell_bottom, [1.0, 1.4,1.79], [0,1,0])   
+ls = [0,1,0]
 ns = [1,1,2]
 
 plt.figure(figsize = (11,7), frameon=False)
 for i in range(0,3):
     n = ns[i]
     l = ls[i]
-    u = odeint(schrodinger, y0, rs, (cornell_charm, Energies[i], l, mu))[:,0]
+    u = odeint(schrodinger, y0, rs, (cornell_bottom, Energies_bottom[i], l, mu))[:,0]
     unorm = np.abs(simpson(u*u,x = rs[::-1]))
     u = u/np.sqrt(unorm)
     prob = u*u
@@ -291,9 +294,13 @@ for i in range(0,3):
 plt.legend(fontsize = '17')
 
 plt.xlim(0,14)
-plt.xlabel('r (GeV)', fontsize = '22')
+plt.xlabel('Quark seperation (GeV)', fontsize = '22')
 plt.xticks(fontsize = '20')
 
 plt.ylabel('radial probability density', fontsize = '22')
 plt.ylim(0,0.45)
 plt.yticks(fontsize = '17')
+
+for pos in ['right', 'top']: 
+    plt.gca().spines[pos].set_visible(False) 
+plt.show() 
