@@ -8,9 +8,9 @@ Created on Thu Oct 12 15:20:59 2023
 import numpy as np
 from scipy.integrate import odeint, simpson
 import matplotlib.pyplot as plt
-from scipy.special import sph_harm
-from matplotlib import cm, colors
-from mpl_toolkits import mplot3d
+#from scipy.special import sph_harm
+#from matplotlib import cm, colors
+#from mpl_toolkits import mplot3d
 
 alpha = 1/137
 def coulomb(r):
@@ -246,7 +246,7 @@ def get_beta(B0, B1, alpha, tolerance, l):
         runs = runs+1
     print("iterated " + str(runs) +" " +'times')
     plt.plot(rs,tmid)
-    plt.xlabel('r (GeV)')
+    plt.xlabel('r $(GeV^{-1})$')
     plt.ylabel('u(r)')
     plt.title('Radial wavefunction for returned Beta')
     plt.show()
@@ -270,12 +270,11 @@ def cornell_bottom(r):
 #charm_ground_U = charm_ground[:,0]
 #norm = np.sqrt(simpson(charm_ground_U, x = rs))
 
-#charm_ground_deriv = charm_ground[:,1]/np.sqrt(norm)
+#charm_gr'#ound_deriv = charm_ground[:,1]/np.sqrt(norm)
 #R_zero = charm_ground_deriv[0]
 
 #spin_coupling = ((8*alpha_s_charm)/(9*1.34**2))*np.abs(R_zero)**2
 
-'try similar n^2 dependance for charmonium'#
 accessible_cols = ['#FFB000','#DC267F','#648FFF']
 Energies = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.4], [0,1,0])  
 Energies_bottom = milestone([1,1,2], cornell_bottom, [1.0, 1.4,1.79], [0,1,0])   
@@ -294,7 +293,7 @@ for i in range(0,3):
 plt.legend(fontsize = '17')
 
 plt.xlim(0,14)
-plt.xlabel('Quark seperation (GeV)', fontsize = '22')
+plt.xlabel('Quark seperation $(GeV^{-1})$', fontsize = '22')
 plt.xticks(fontsize = '20')
 
 plt.ylabel('radial probability density', fontsize = '22')
