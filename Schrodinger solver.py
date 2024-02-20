@@ -48,7 +48,7 @@ a0 = 1/(mu*alpha)
 'just need to implement a modified bisection method'#
 
 
-def getEnergy(E0, E1, potential, tolerance, l):
+def getEnergy(E0, E1, potential, tolerance, l, mu):
     # E0 = E0*10**-6
     # E1 = E1*10**-6
     
@@ -117,18 +117,18 @@ def getEnergy(E0, E1, potential, tolerance, l):
     return Emid
 
     
-def milestone(ns, potential, energy_start, ls):
+def milestone(ns, potential, energy_start, ls, mu):
     Es = []
     i = 0
     for n in ns:
         E_init = energy_start[i]
-        E0 = E_init + 0.2
-        E1 = E_init - 0.2
+        E0 = E_init + 0.1
+        E1 = E_init - 0.1
         print(E0, E1)
         l = ls[i]
         i = i+1
         
-        Enew = getEnergy(E0, E1, potential, 0.0001, l)
+        Enew = getEnergy(E0, E1, potential, 0.0001, l, mu)
         print('Enew = ' + str(Enew))
         Es.append(Enew)
         #error = (E_anal- Enew)/E_anal
@@ -178,8 +178,9 @@ alpha_s_bottom = 0.28
 'First will use Charmonium measurements to iterate to a value of beta'
 
 E0_charm = 0.388 #ground state charmonium energy, from this point all measured in GeV
-mu = (1.34)/(2)
-def get_beta(B0, B1, alpha, tolerance, l):
+mu_charm = (1.34)/(2)
+mu_bottom = 4.70/2
+def get_beta(B0, B1, alpha, tolerance, l, mu):
     def cornell0(r):
         return (-4*alpha)/(3*r) + B0*r 
     
@@ -254,10 +255,10 @@ def get_beta(B0, B1, alpha, tolerance, l):
 
 B_lit = 0.195
 
-B0 = 0.195
+B0 = 0.185
 B1 = 0.205
 
-beta = get_beta(B0,B1,alpha_s_charm, 0.001, 0)
+beta = get_beta(B0,B1,alpha_s_charm, 0.001, 0, mu_charm)
 print(beta)
 
 def cornell_charm(r):
@@ -276,8 +277,8 @@ def cornell_bottom(r):
 #spin_coupling = ((8*alpha_s_charm)/(9*1.34**2))*np.abs(R_zero)**2
 
 accessible_cols = ['#FFB000','#DC267F','#648FFF']
-Energies = milestone([1,1,2], cornell_charm, [E0_charm,0.734, 1.4], [0,1,0])  
-Energies_bottom = milestone([1,1,2], cornell_bottom, [1.0, 1.4,1.79], [0,1,0])   
+Energies = milestone([1,1,2], cornell_charm, [E0_charm,0.9, 1.1], [0,1,0], mu_charm)  
+Energies_bottom = milestone([1,1,2], cornell_bottom, [0.1, 0.4,0.6], [0,1,0], mu_bottom)   
 ls = [0,1,0]
 ns = [1,1,2]
 
@@ -285,7 +286,7 @@ plt.figure(figsize = (11,7), frameon=False)
 for i in range(0,3):
     n = ns[i]
     l = ls[i]
-    u = odeint(schrodinger, y0, rs, (cornell_bottom, Energies_bottom[i], l, mu))[:,0]
+    u = odeint(schrodinger, y0, rs, (cornell_charm, Energies[i], l, mu_charm))[:,0]
     unorm = np.abs(simpson(u*u,x = rs[::-1]))
     u = u/np.sqrt(unorm)
     prob = u*u
@@ -303,3 +304,12 @@ plt.yticks(fontsize = '17')
 for pos in ['right', 'top']: 
     plt.gca().spines[pos].set_visible(False) 
 plt.show() 
+
+'''if given odeint solution, returns the derivative at 0'''
+def getderiv_0(solution): 
+    print("make sure you have input a raw odeint solution or this wont work")
+    u = solution[:,0]
+    unorm = np.abs(simpson(u*u,x = rs[::-1]))
+    solution = solution/np.sqrt(unorm)
+    deriv = solution[:,1]
+    return deriv[0]
