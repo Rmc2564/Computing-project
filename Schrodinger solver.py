@@ -128,7 +128,7 @@ def milestone(ns, potential, energy_start, ls, mu):
         l = ls[i]
         i = i+1
         
-        Enew = getEnergy(E0, E1, potential, 0.0001, l, mu)
+        Enew = getEnergy(E0, E1, potential, 0.01, l, mu)
         print('Enew = ' + str(Enew))
         Es.append(Enew)
         #error = (E_anal- Enew)/E_anal
@@ -180,7 +180,7 @@ alpha_s_bottom = 0.28
 E0_charm = 0.388 #ground state charmonium energy, from this point all measured in GeV
 mu_charm = (1.34)/(2)
 mu_bottom = 4.70/2
-def get_beta(B0, B1, alpha, tolerance, l, mu):
+def get_beta(B0, B1, alpha, tolerance, l, mu, E0):
     def cornell0(r):
         return (-4*alpha)/(3*r) + B0*r 
     
@@ -188,8 +188,8 @@ def get_beta(B0, B1, alpha, tolerance, l, mu):
         return (-4*alpha)/(3*r) + B1*r 
     
     #print((((l*(l+1))/rs**2)-2*mu*(E-cornell1(rs))))
-    t1 = odeint(schrodinger, y0, rs, (cornell1, E0_charm, l, mu))[:,0]
-    t0 = odeint(schrodinger, y0, rs, (cornell0, E0_charm, l, mu))[:,0]
+    t1 = odeint(schrodinger, y0, rs, (cornell1, E0, l, mu))[:,0]
+    t0 = odeint(schrodinger, y0, rs, (cornell0, E0, l, mu))[:,0]
     norm1 = np.abs(simpson(t1*t1, x = rs))
     norm0 = np.abs(simpson(t0*t0, x = rs))
     t0 = t0/np.sqrt(norm0)
@@ -246,6 +246,7 @@ def get_beta(B0, B1, alpha, tolerance, l, mu):
         #print(Bmid)
         runs = runs+1
     print("iterated " + str(runs) +" " +'times')
+    plt.figure(1)
     plt.plot(rs,tmid)
     plt.xlabel('r $(GeV^{-1})$')
     plt.ylabel('u(r)')
@@ -253,16 +254,23 @@ def get_beta(B0, B1, alpha, tolerance, l, mu):
     plt.show()
     return Bmid
 
-B_lit = 0.195
+B_lit_charm = 0.195
 
 B0 = 0.185
 B1 = 0.205
 
-beta = get_beta(B0,B1,alpha_s_charm, 0.001, 0, mu_charm)
-print(beta)
+B_lit_bottom = 0.168
+beta_charm = get_beta(B0,B1,alpha_s_charm, 0.001, 0, mu_charm, E0_charm)
+print(beta_charm)
+
+B0 = 0.158
+B1 = 0.178
+E0_bottom = 0.02
+beta_bottom = get_beta(B0,B1,alpha_s_bottom, 0.001, 0, mu_bottom, E0_bottom)
+
 
 def cornell_charm(r):
-    return (-4*alpha_s_charm)/(3*r) + beta*r 
+    return (-4*alpha_s_charm)/(3*r) + beta_charm*r 
 
 def cornell_bottom(r):
     return (-4*alpha_s_bottom)/(3*r) + beta*r
@@ -278,27 +286,27 @@ def cornell_bottom(r):
 
 accessible_cols = ['#FFB000','#DC267F','#648FFF']
 Energies = milestone([1,1,2], cornell_charm, [E0_charm,0.9, 1.1], [0,1,0], mu_charm)  
-Energies_bottom = milestone([1,1,2], cornell_bottom, [0.1, 0.4,0.6], [0,1,0], mu_bottom)   
+Energies_bottom = milestone([1,1,2], cornell_bottom, [0.01, 0.4,0.6], [0,1,0], mu_bottom)   
 ls = [0,1,0]
 ns = [1,1,2]
 
-plt.figure(figsize = (11,7), frameon=False)
+plt.figure(2, figsize = (11,7), frameon=False)
 for i in range(0,3):
     n = ns[i]
     l = ls[i]
-    u = odeint(schrodinger, y0, rs, (cornell_charm, Energies[i], l, mu_charm))[:,0]
+    u = odeint(schrodinger, y0, rs, (cornell_bottom, Energies_bottom[i], l, mu_bottom))[:,0]
     unorm = np.abs(simpson(u*u,x = rs[::-1]))
     u = u/np.sqrt(unorm)
     prob = u*u
-    plt.plot(rs, prob,label = '(n,l) = ' + str((n,l)), color = accessible_cols[i])    
+    plt.plot(rs, u,label = '(n,l) = ' + str((n,l)), color = accessible_cols[i])    
 plt.legend(fontsize = '17')
 
-plt.xlim(0,14)
+plt.xlim(0,13)
 plt.xlabel('Quark seperation $(GeV^{-1})$', fontsize = '22')
 plt.xticks(fontsize = '20')
 
 plt.ylabel('radial probability density', fontsize = '22')
-plt.ylim(0,0.45)
+#plt.ylim(0,0.45)
 plt.yticks(fontsize = '17')
 
 for pos in ['right', 'top']: 
@@ -313,3 +321,28 @@ def getderiv_0(solution):
     solution = solution/np.sqrt(unorm)
     deriv = solution[:,1]
     return deriv[0]
+
+E_big = E0_charm + 0.2
+E_small = E0_charm - 0.2
+
+u0_big = odeint(schrodinger, y0, rs, (cornell_charm, E_big, 0, mu_charm))[:,0]
+u0_big = u0_big/np.sqrt(np.abs(simpson(u0_big*u0_big, x = rs)))
+u0_actual = odeint(schrodinger, y0, rs, (cornell_charm, E0_charm, 0, mu_charm))[:,0]
+u0_actual = u0_actual/np.sqrt(np.abs(simpson(u0_actual*u0_actual, x = rs)))
+u0_small = odeint(schrodinger, y0, rs, (cornell_charm, E_small, 0, mu_charm))[:,0]
+u0_small = u0_small/np.sqrt(np.abs(simpson(u0_small*u0_small, x = rs)))
+
+plt.figure(3, figsize = (10,7))
+plt.plot(rs,u0_big, color = 'blue', label = 'Energy = 0.588 GeV')
+plt.plot(rs,u0_actual, color = 'black', label = 'Energy = 0.388 GeV')
+plt.plot(rs,u0_small, color = 'r', label = 'Energy = 0.188 GeV')
+plt.xlim(0,14)
+plt.legend(loc = 'upper left', fontsize = '13')
+plt.xlabel('Quark seperation $(GeV^{-1})$', fontsize = '13')
+plt.ylabel('u(r) $(Gev^{3/2})$',fontsize = '13')
+plt.xticks(fontsize = '15')
+plt.yticks(fontsize = '15')
+
+for pos in ['right', 'top']: 
+    plt.gca().spines[pos].set_visible(False) 
+plt.show()
