@@ -346,3 +346,33 @@ plt.yticks(fontsize = '15')
 for pos in ['right', 'top']: 
     plt.gca().spines[pos].set_visible(False) 
 plt.show()
+
+def spin_split(u,mass,alpha):
+    R0 = getderiv_0(u)
+    delta = ((32*np.pi*alpha)/(9*mass*mass))*np.abs(R0*R0)
+    return delta
+
+'''deltas give prefactor to spin dot product'''
+charm_aligned = []
+charm_antialigned = []
+bottom_aligned = []
+bottom_antialigned = []
+
+
+
+for i in range(0,3):
+    Ec = Energies[i]
+    Eb = Energies_bottom[i]
+    uc = odeint(schrodinger, y0, rs, (cornell_charm, Ec, 0, mu_charm))
+    ub = odeint(schrodinger, y0, rs, (cornell_bottom, Eb, 0, mu_bottom))
+    split_c = spin_split(uc,2*mu_charm,alpha_s_charm)
+    split_b = spin_split(ub,2*mu_bottom,alpha_s_bottom)
+    charm_aligned.append(split_c*0.25)
+    charm_antialigned.append(split_c*-0.75)
+    bottom_aligned.append(split_b*0.25)
+    bottom_antialigned.append(split_b*-0.75)
+    
+print('charm aligned: ' + str(charm_aligned))
+print('charm anti aligned:' + str(charm_antialigned))
+print('charm aligned: ' + str(bottom_aligned))
+print('charm antialigned: ' + str(bottom_aligned))
