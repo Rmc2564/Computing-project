@@ -26,3 +26,8 @@ def bisection(f,r0,r1,tolerance): #applies the bisection method to a function f 
             rb = m
     return m
 
+def test(x):
+    return x**2 - 1
+
+t = bisection(test,0.5,1.2,0.0001)
+print(t)
